@@ -113,3 +113,72 @@ class AttackLabWindow(tk.Frame):
                  bg=T.BG_PANEL, fg=T.TEXT,
                  font=("Courier New",10),
                  wraplength=620, justify="left").pack(anchor="w", padx=10, pady=(0,4))
+# ── Launch button ─────────────────────────────────────────────────────
+        tk.Frame(self, bg=T.BORDER_PANEL, height=1).pack(fill="x", padx=12, pady=8)
+        self.defend_btn = T.styled_button(
+            self, "[ OPEN DEFENSE TERMINAL ]",
+            self._open_defense, color=T.RED,
+            font=("Courier New",12,"bold"), padx=20, pady=10)
+        self.defend_btn.pack(fill="x", padx=60)
+
+    # ── Timer ──────────────────────────────────────────────────────────────────
+
+    def _tick(self):
+        if self._breached: return
+        ratio = self.time_left / self.diff["time"]
+        self.timer_lbl.config(text=f"[T] {self.time_left}s")
+        self.timer_fill.place(relwidth=max(0.0, ratio))
+        col = T.GREEN if ratio > 0.5 else (T.AMBER if ratio > 0.25 else T.RED)
+        self.timer_fill.config(bg=col)
+        self.timer_lbl.config(fg=col)
+
+        if self.time_left <= 0:
+            self._do_breach(); return
+        self.time_left -= 1
+        self._timer_job = self.after(1000, self._tick)
+
+    def stop_timer(self):
+        if self._timer_job:  self.after_cancel(self._timer_job);  self._timer_job = None
+        if self._log_job:    self.after_cancel(self._log_job);    self._log_job   = None
+
+    def _do_breach(self):
+        self._breached = True
+        self.stop_timer()
+        self._log_append("TIME EXPIRED — BREACH RECORDED", "red")
+        self.defend_btn.config(state="disabled",
+                               text="[ TIME EXPIRED — BREACH RECORDED ]",
+                               fg=T.MUTED)
+        self.after(1400, self.on_breach)
+
+    # ── Log animation ──────────────────────────────────────────────────────────
+
+    def _start_log(self):
+        self.after(200, self._next_log)
+
+    def _next_log(self):
+        if self._log_idx >= len(self._log_lines): return
+        line = self._log_lines[self._log_idx]; self._log_idx += 1
+        parts = line.split("|") if "|" in line else ["LOG", line]
+        prefix, body = parts[0], parts[-1] if len(parts) > 1 else line
+
+        if "ALERT" in prefix:   tag = "red";   pfx = "[ALERT] "
+        elif "SYSTEM" in prefix: tag = "cyan";  pfx = "[SYS]   "
+        elif "AUTH" in prefix:  tag = "green"; pfx = "[AUTH]  "
+        elif "NET" in prefix:   tag = "blue";  pfx = "[NET]   "
+        elif "DB" in prefix:    tag = "amber"; pfx = "[DB]    "
+        elif "MAIL" in prefix:  tag = "green"; pfx = "[MAIL]  "
+        else:                   tag = "muted"; pfx = "[LOG]   "
+
+        self._log_append(pfx + body, tag)
+        if self._log_idx < len(self._log_lines):
+            self._log_job = self.after(380, self._next_log)
+
+    def _log_append(self, text, tag="green"):
+        self.terminal.config(state="normal")
+        self.terminal.insert("end", text + "\n", tag)
+        self.terminal.see("end")
+        self.terminal.config(state="disabled")
+
+    def _open_defense(self):
+        self.stop_timer()
+        self.on_open_defense()
