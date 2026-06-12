@@ -1,0 +1,25 @@
+""
+auth.py - Password hashing and user authentication
+Uses hashlib (SHA-256 + salt) since bcrypt may not be installed.
+Cyber-Attack Simulator & Defense Lab
+"""
+
+import hashlib
+import os
+import database as db
+
+
+def _hash_password(password: str) -> str:
+    """Hash a password with a random salt. Returns 'salt:hash'."""
+    salt = os.urandom(16).hex()
+    hashed = hashlib.sha256((salt + password).encode()).hexdigest()
+    return f"{salt}:{hashed}"
+
+
+def _verify_password(password: str, stored: str) -> bool:
+    """Verify a plaintext password against a stored 'salt:hash'."""
+    try:
+        salt, hashed = stored.split(":")
+        return hashlib.sha256((salt + password).encode()).hexdigest() == hashed
+    except ValueError:
+        return False
