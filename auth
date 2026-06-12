@@ -1,4 +1,4 @@
-""
+"""
 auth.py - Password hashing and user authentication
 Uses hashlib (SHA-256 + salt) since bcrypt may not be installed.
 Cyber-Attack Simulator & Defense Lab
@@ -24,7 +24,8 @@ def _verify_password(password: str, stored: str) -> bool:
     except ValueError:
         return False
 
-        def register_user(username: str, password: str) -> dict:
+
+def register_user(username: str, password: str) -> dict:
     """
     Register a new user. Returns {'success': bool, 'message': str, 'user': dict|None}.
     """
@@ -54,3 +55,5 @@ def login_user(username: str, password: str) -> dict:
     if not _verify_password(password, user["password_hash"]):
         return {"success": False, "message": "Incorrect password.", "user": None}
     return {"success": True, "message": "Login successful.", "user": user}
+
+        
