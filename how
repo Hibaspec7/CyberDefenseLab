@@ -1,0 +1,19 @@
+[33mcommit 2c8ff67e8b4adf79f815f5da683f17bde4c7ce8a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mattack[m[33m)[m
+Author: Laiba7788 <laibaabbas285@gmail.com>
+Date:   Fri Jun 12 18:54:36 2026 +0500
+
+    Part no 1
+
+[33mcommit a731c5e6a8c1ad4f75bcdbbad34a2ad7e05cb6bd[m[33m ([m[1;31morigin/login[m[33m, [m[1;31morigin/defense[m[33m, [m[1;31morigin/database[m[33m, [m[1;31morigin/attack[m[33m)[m
+Author: Hibaspec7 <f2024408118@umt.edu.pk>
+Date:   Sun Jun 7 23:08:10 2026 +0500
+
+    Add .gitignore to exclude cache and environment files
+
+[33mcommit c8e34d72ebbda3cfab926d525a445f1f3db7748a[m
+Author: Hibaspec7 <f2024408118@umt.edu.pk>
+Date:   Sun Jun 7 23:07:25 2026 +0500
+
+    Initialize README with project details
+    
+    Add project description for CyberDefenseLab
