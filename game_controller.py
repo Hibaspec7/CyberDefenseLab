@@ -1,3 +1,9 @@
+"""
+game_controller.py - Orchestrates game sessions using the full question bank.
+Each session picks fresh, shuffled questions per difficulty level.
+Cyber-Attack Simulator & Defense Lab
+"""
+
 import random
 import time
 
@@ -8,55 +14,150 @@ import questions as Q
 
 class GameController:
     ATTACKS_PER_SESSION = 4
-    ATTACK_TYPES = ["phishing", "bruteforce", "ddos", "sqli"
-                    
-def __init__(self, user_id, difficulty="beginner"):
-    self.user_id = user_id
-    self.difficulty = difficulty
-    self.score_mgr = ScoreManager(difficulty)
+    ATTACK_TYPES = ["phishing", "bruteforce", "ddos", "sqli"]
 
-    self.attack_queue = []
-    self.current_index = 0
-    self.round_start_time = None
-    self.hint_used_this_round = False
-    self.session_active = False
-    self._used_ids = []
+    def __init__(self, user_id, difficulty="beginner"):
+        self.user_id   = user_id
+        self.difficulty = difficulty
+        self.score_mgr = ScoreManager(difficulty)
+
+        self.attack_queue     = []   # list of question dicts
+        self.current_index    = 0
+        self.round_start_time = None
+        self.hint_used_this_round = False
+        self.session_active   = False
+        self._used_ids        = []   # track used question IDs this session
+
+    # ── Session lifecycle ──────────────────────────────────────────────────────
+
     def start_session(self):
-    self._used_ids = []
-    selected = []
+        """Pick one question per attack type, all unique, all matching difficulty."""
+        self._used_ids = []
+        selected = []
 
-    types = self.ATTACK_TYPES[:]
-    random.shuffle(types)
+        # Shuffle order so attack types appear in random sequence
+        types = self.ATTACK_TYPES[:]
+        random.shuffle(types)
 
-    for atype in types:
-        q = Q.get_question(atype, self.difficulty, exclude_ids=self._used_ids)
-        if q:
-            q["attack_type"] = atype
-            selected.append(q)
-            self._used_ids.append(q["id"])
+        for atype in types:
+            q = Q.get_question(atype, self.difficulty, exclude_ids=self._used_ids)
+            if q:
+                q["attack_type"] = atype   # ensure field present
+                selected.append(q)
+                self._used_ids.append(q["id"])
 
-    self.attack_queue = selected[:self.ATTACKS_PER_SESSION]
-    self.current_index = 0
-    self.score_mgr.reset()
-    self.session_active = True
+        self.attack_queue  = selected[:self.ATTACKS_PER_SESSION]
+        self.current_index = 0
+        self.score_mgr.reset()
+        self.session_active = True
+
     def session_complete(self):
-    return self.current_index >= len(self.attack_queue)
+        return self.current_index >= len(self.attack_queue)
 
-def get_current_attack(self):
-    if self.session_complete():
-        return None
-    return self.attack_queue[self.current_index]
+    # ── Round lifecycle ────────────────────────────────────────────────────────
+
+    def get_current_attack(self):
+        if self.session_complete():
+            return None
+        return self.attack_queue[self.current_index]
+
     def start_round_timer(self):
-    self.round_start_time = time.time()
-    self.hint_used_this_round = False
+        self.round_start_time = time.time()
+        self.hint_used_this_round = False
 
-def elapsed_time(self):
-    if self.round_start_time is None:
-        return 0
-    return time.time() - self.round_start_time
+    def elapsed_time(self):
+        if self.round_start_time is None:
+            return 0.0
+        return time.time() - self.round_start_time
 
-def use_hint(self):
-    granted = self.score_mgr.use_hint()
-    if granted:
-        self.hint_used_this_round = True
-    return granted
+    def use_hint(self):
+        granted = self.score_mgr.use_hint()
+        if granted:
+            self.hint_used_this_round = True
+        return granted
+
+    # ── Answer submission ──────────────────────────────────────────────────────
+
+    def submit_answer(self, answer):
+        atk = self.get_current_attack()
+        if atk is None:
+            return {"correct": False, "points": 0, "result": "error",
+                    "message": "No active round.", "explanation": ""}
+
+        elapsed    = self.elapsed_time()
+        correct    = self._validate(atk, answer)
+        pts        = self.score_mgr.apply_round(
+                         atk["attack_type"], correct, elapsed,
+                         self.hint_used_this_round)
+
+        result_str = "pass" if correct else "fail"
+        db.save_session(self.user_id, atk["attack_type"], result_str,
+                        pts, round(elapsed, 1), self.difficulty)
+        db.add_log(self.user_id, atk["attack_type"], str(answer)[:120], result_str)
+        db.update_user_score(self.user_id, pts)
+
+        self.current_index += 1
+
+        explain = atk.get("explanation", "")
+        if correct:
+            msg = f"[OK] DEFENSE SUCCESSFUL  +{pts} pts"
+        else:
+            msg = f"[!!] WRONG  {pts} pts  |  {explain}"
+
+        return {"correct": correct, "points": pts, "result": result_str,
+                "message": msg, "explanation": explain}
+
+    def submit_breach(self):
+        atk = self.get_current_attack()
+        if atk is None:
+            return
+        self.score_mgr.apply_round(atk["attack_type"], False, 999, False, breach=True)
+        db.save_session(self.user_id, atk["attack_type"], "breach", 0, 999, self.difficulty)
+        db.add_log(self.user_id, atk["attack_type"], "TIMEOUT", "breach")
+        self.current_index += 1
+
+    # ── Validation ─────────────────────────────────────────────────────────────
+
+    def _validate(self, atk, answer):
+        atype = atk["attack_type"]
+
+        if atype == "phishing":
+            return str(answer) == "malicious_link"
+
+        elif atype == "bruteforce":
+            correct_ip = atk.get("attacker_ip", atk.get("correct_answer", ""))
+            return str(answer).strip() == correct_ip.strip()
+
+        elif atype == "ddos":
+            expected = self._ddos_expected(atk)
+            if not isinstance(answer, dict):
+                return False
+            return all(answer.get(ip) == action for ip, action in expected.items())
+
+        elif atype == "sqli":
+            return str(answer) == "parameterized_queries"
+
+        return False
+
+    def _ddos_expected(self, atk):
+        """Build expected {ip: 'block'/'allow'} from the question's traffic list."""
+        return {ip: ("block" if is_flood else "allow")
+                for ip, _, is_flood in atk.get("traffic", [])}
+
+    def get_ddos_entries(self):
+        """Return list of (ip, expected_action) for current DDoS round."""
+        atk = self.get_current_attack()
+        if atk and atk["attack_type"] == "ddos":
+            return list(self._ddos_expected(atk).items())
+        return []
+
+    # ── Dashboard data ─────────────────────────────────────────────────────────
+
+    def get_session_summary(self):
+        return {
+            "final_score": self.score_mgr.session_score,
+            "win_rate":    self.score_mgr.get_win_rate(),
+            "rounds":      self.score_mgr.rounds_played,
+            "passes":      self.score_mgr.rounds_passed,
+            "round_log":   self.score_mgr.round_log,
+        }
