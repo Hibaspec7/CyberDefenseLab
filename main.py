@@ -82,7 +82,7 @@ class CyberSimApp:
         atk = gc.get_current_attack()
         gc.start_round_timer()
 
-        from attack_lab import AttackLabWindow
+        from attack import AttackLabWindow
         from score_manager import DIFFICULTY_SETTINGS
         diff_cfg = DIFFICULTY_SETTINGS[gc.difficulty]
 
