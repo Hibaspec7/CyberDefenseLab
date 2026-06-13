@@ -28,3 +28,26 @@ def calc_round_score(self, correct, time_taken, hint_used):
         pts = max(0, pts - self.settings["hint_cost"])
 
     return pts
+    
+def apply_round(self, attack_type, correct, time_taken, hint_used, breach=False):
+    if breach:
+        pts = 0
+        result = "breach"
+    else:
+        pts = self.calc_round_score(correct, time_taken, hint_used)
+        result = "pass" if correct else "fail"
+
+    self.session_score = max(0, self.session_score + pts)
+
+    self.rounds_played += 1
+    if result == "pass":
+        self.rounds_passed += 1
+
+    self.round_log.append({
+        "attack_type": attack_type,
+        "result": result,
+        "score": pts,
+        "time_taken": round(time_taken, 1),
+    })
+
+    return pts
