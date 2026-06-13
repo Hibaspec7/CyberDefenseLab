@@ -46,3 +46,17 @@ def get_current_attack(self):
     if self.session_complete():
         return None
     return self.attack_queue[self.current_index]
+    def start_round_timer(self):
+    self.round_start_time = time.time()
+    self.hint_used_this_round = False
+
+def elapsed_time(self):
+    if self.round_start_time is None:
+        return 0
+    return time.time() - self.round_start_time
+
+def use_hint(self):
+    granted = self.score_mgr.use_hint()
+    if granted:
+        self.hint_used_this_round = True
+    return granted
