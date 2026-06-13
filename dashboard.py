@@ -240,3 +240,62 @@ class DashboardWindow(tk.Frame):
             tk.Label(r, text=str(row.get("total_score",0)), bg=bg, fg=T.GREEN,
                      font=("Courier New",10,"bold"), width=8, anchor="w").pack(side="left",padx=6)
             tk.Frame(f, bg=T.BORDER_PANEL, height=1).pack(fill="x")
+            
+            # ══════════════════════════════════════════════════════════════════════════
+    # HISTORY TAB
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _build_history(self, parent):
+        T.section_header(parent,"  ATTACK LOG — LAST 30 ROUNDS").pack(anchor="w",pady=(0,6))
+        outer = tk.Frame(parent, bg=T.BG_PANEL,
+                         highlightthickness=1, highlightbackground=T.BORDER_PANEL)
+        outer.pack(fill="both", expand=True)
+
+        hdr = tk.Frame(outer, bg=T.BG_INPUT)
+        hdr.pack(fill="x")
+        for col,w in [("#",4),("ATTACK",14),("DIFF",12),
+                      ("RESULT",12),("SCORE",8),("TIME",7)]:
+            tk.Label(hdr, text=col, bg=T.BG_INPUT, fg=T.MUTED,
+                     font=("Courier New",9,"bold"), width=w,
+                     anchor="w").pack(side="left",padx=6,pady=5)
+        tk.Frame(outer, bg=T.BORDER_PANEL, height=1).pack(fill="x")
+
+        sc   = tk.Canvas(outer, bg=T.BG_PANEL, highlightthickness=0)
+        sb   = tk.Scrollbar(outer, orient="vertical", command=sc.yview,
+                            bg=T.BG_DARK, troughcolor=T.BG_DARK)
+        sc.configure(yscrollcommand=sb.set)
+        sb.pack(side="right", fill="y")
+        sc.pack(fill="both", expand=True)
+        inner = tk.Frame(sc, bg=T.BG_PANEL)
+        sc.create_window((0,0), window=inner, anchor="nw")
+        inner.bind("<Configure>", lambda e: sc.configure(scrollregion=sc.bbox("all")))
+
+        type_labels  = {"phishing":"Phishing","bruteforce":"Brute Force",
+                        "ddos":"DDoS","sqli":"SQL Inject."}
+        res_colors   = {"pass":T.GREEN,"fail":T.RED,"breach":T.AMBER}
+        res_symbols  = {"pass":"[OK] DEFENDED","fail":"[!!] FAILED","breach":"[X] BREACH"}
+
+        sessions = db.get_user_sessions(self.user["id"], limit=30)
+        if not sessions:
+            tk.Label(inner, text="No rounds recorded yet.",
+                     bg=T.BG_PANEL, fg=T.MUTED,
+                     font=("Courier New",10)).pack(padx=20,pady=20)
+            return
+
+        for i,sess in enumerate(sessions):
+            result = sess.get("result","—")
+            r = tk.Frame(inner, bg=T.BG_PANEL)
+            r.pack(fill="x")
+            pts   = sess.get("score",0)
+            for val,w,col in [
+                (str(i+1),                                4,  T.MUTED),
+                (type_labels.get(sess.get("attack_type",""),"?"), 14, T.TEXT),
+                (sess.get("difficulty","?").capitalize(), 12, T.MUTED),
+                (res_symbols.get(result,result),          12, res_colors.get(result,T.TEXT)),
+                ((f"+{pts}" if pts>0 else str(pts)),      8,  T.GREEN if pts>0 else T.RED),
+                (f"{sess.get('time_taken',0):.1f}s",      7,  T.MUTED),
+            ]:
+                tk.Label(r, text=val, bg=T.BG_PANEL, fg=col,
+                         font=("Courier New",10,"bold" if w==12 and col!=T.MUTED else "normal"),
+                         width=w, anchor="w").pack(side="left",padx=6,pady=3)
+            tk.Frame(inner, bg=T.BORDER_PANEL, height=1).pack(fill="x")
