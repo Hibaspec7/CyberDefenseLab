@@ -108,12 +108,19 @@ def get_user_by_id(user_id):
 def update_user_score(user_id, points_delta):
     conn = get_connection()
     conn.execute(
-        "UPDATE users SET total_score=MAX(0,total_score+?), sessions_played=sessions_played+1 WHERE id=?",
+        "UPDATE users SET total_score=MAX(0,total_score+?) WHERE id=?",
         (points_delta, user_id))
     row = conn.execute("SELECT total_score FROM users WHERE id=?", (user_id,)).fetchone()
     if row:
         conn.execute("UPDATE users SET level=? WHERE id=?",
                      (_get_level(row["total_score"]), user_id))
+    conn.commit()
+    conn.close()
+
+
+def increment_session_count(user_id):
+    conn = get_connection()
+    conn.execute("UPDATE users SET sessions_played=sessions_played+1 WHERE id=?", (user_id,))
     conn.commit()
     conn.close()
 

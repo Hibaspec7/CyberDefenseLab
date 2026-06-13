@@ -19,7 +19,8 @@ class GameController:
     def __init__(self, user_id, difficulty="beginner"):
         self.user_id   = user_id
         self.difficulty = difficulty
-        self.score_mgr = ScoreManager(difficulty)
+        self.is_daily  = difficulty == "daily"
+        self.score_mgr = ScoreManager("daily" if self.is_daily else difficulty)
 
         self.attack_queue     = []   # list of question dicts
         self.current_index    = 0
@@ -39,8 +40,9 @@ class GameController:
         types = self.ATTACK_TYPES[:]
         random.shuffle(types)
 
+        question_difficulty = "intermediate" if self.is_daily else self.difficulty
         for atype in types:
-            q = Q.get_question(atype, self.difficulty, exclude_ids=self._used_ids)
+            q = Q.get_question(atype, question_difficulty, exclude_ids=self._used_ids)
             if q:
                 q["attack_type"] = atype   # ensure field present
                 selected.append(q)
@@ -95,6 +97,7 @@ class GameController:
                         pts, round(elapsed, 1), self.difficulty)
         db.add_log(self.user_id, atk["attack_type"], str(answer)[:120], result_str)
         db.update_user_score(self.user_id, pts)
+        db.update_streak(self.user_id, correct)
 
         self.current_index += 1
 
@@ -105,7 +108,8 @@ class GameController:
             msg = f"[!!] WRONG  {pts} pts  |  {explain}"
 
         return {"correct": correct, "points": pts, "result": result_str,
-                "message": msg, "explanation": explain}
+                "message": msg, "explanation": explain,
+                "streak": self.score_mgr.current_streak}
 
     def submit_breach(self):
         atk = self.get_current_attack()
@@ -114,7 +118,15 @@ class GameController:
         self.score_mgr.apply_round(atk["attack_type"], False, 999, False, breach=True)
         db.save_session(self.user_id, atk["attack_type"], "breach", 0, 999, self.difficulty)
         db.add_log(self.user_id, atk["attack_type"], "TIMEOUT", "breach")
+        db.update_streak(self.user_id, False)
         self.current_index += 1
+
+    def save_daily_result(self):
+        import datetime
+        today = datetime.date.today().isoformat()
+        db.save_daily_challenge(self.user_id, today,
+                                self.score_mgr.session_score,
+                                self.session_complete())
 
     # ── Validation ─────────────────────────────────────────────────────────────
 
@@ -160,4 +172,7 @@ class GameController:
             "rounds":      self.score_mgr.rounds_played,
             "passes":      self.score_mgr.rounds_passed,
             "round_log":   self.score_mgr.round_log,
+            "difficulty":  self.difficulty,
+            "hint_used_any": self.score_mgr.hint_used_any,
+            "max_streak":   max((entry.get("streak", 0) for entry in self.score_mgr.round_log), default=0),
         }

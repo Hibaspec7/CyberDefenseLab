@@ -76,13 +76,14 @@ class CyberSimApp:
                 gc.save_daily_result()
                 # Bonus points for completing daily
                 db.update_user_score(self.current_user["id"], 50)
+            db.increment_session_count(self.current_user["id"])
             self._show_dashboard()
             return
 
         atk = gc.get_current_attack()
         gc.start_round_timer()
 
-        from attack import AttackLabWindow
+        from attack_lab import AttackLabWindow
         from score_manager import DIFFICULTY_SETTINGS
         diff_cfg = DIFFICULTY_SETTINGS[gc.difficulty]
 
