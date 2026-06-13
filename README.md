@@ -1,119 +1,134 @@
-# Cyber-Attack Simulator & Defense Lab
+# 🛡️ Cyber-Attack Simulator & Defense Lab
 
-**Gamified Cybersecurity Education Platform**
-OSSD Final Term Project — CLO 4
-
----
-
-## Description
-
-A Python Tkinter desktop application where users play as a Security Officer and must stop incoming cyber attacks within a time limit to earn points. The game teaches real cybersecurity concepts through interactive, hands-on defense challenges.
+> A gamified cybersecurity education platform where you play as a Security Officer defending against real-world cyber attacks — built with Python & Tkinter.
 
 ---
 
-## Features
+## 📖 Project Description
 
-### Window 1 — Attack Lab
+**Cyber-Attack Simulator & Defense Lab** is a Python Tkinter desktop application developed as an OSSD Final Term Project (CLO 4). Users take on the role of a Security Officer and must identify and stop incoming cyber attacks within a time limit to earn points. The game teaches real cybersecurity concepts through interactive, hands-on defense challenges.
+
+---
+
+## ✨ Features
+
+### 🖥️ Window 1 — Attack Lab
 - Live scrolling terminal-style attack logs
 - 30/20/12 second countdown timer (per difficulty)
 - 4 attack types: Phishing, Brute Force, DDoS, SQL Injection
 - Animated log feed with color-coded severity
 
-### Window 2 — Defense Terminal
-| Attack | Widget | Action |
-|---|---|---|
+### 🔐 Window 2 — Defense Terminal
+| Attack | Widget | Your Action |
+|--------|--------|-------------|
 | Phishing | Clickable email elements | Click the malicious link |
 | Brute Force | Entry + Button | Type attacker IP and block |
 | DDoS | Allow/Block buttons | Classify each traffic source |
 | SQL Injection | Radio buttons | Choose correct parameterized fix |
 
-**Scoring:**
-- Correct + fast: +100 pts
-- Correct + slow: +50 pts
-- Wrong answer: −10/25/50 pts (by difficulty)
-- Hint used: −10/20/40 pts
-- Time runs out: 0 pts, BREACH recorded
-
-### Window 3 — Dashboard
+### 📊 Window 3 — Dashboard
 - Personal stats: score, win rate, sessions, breaches
-- Bar chart of score per attack type (drawn with Canvas)
-- Leaderboard (Top 10 players, Treeview-style)
+- Bar chart of score per attack type (Canvas-drawn)
+- Leaderboard — Top 10 players (Treeview-style)
 - Full attack history with results and scores
 - Weakness detection: shows which attack type you fail most
+- Achievements system with unlockable badges
+
+### 🏆 Scoring System
+| Action | Points |
+|--------|--------|
+| Correct + Fast | +100 pts |
+| Correct + Slow | +50 pts |
+| Wrong Answer | -10 / -25 / -50 pts (by difficulty) |
+| Hint Used | -10 / -20 / -40 pts |
+| Time Runs Out | 0 pts + BREACH recorded |
 
 ---
 
-## Technologies Used
-
+## 🛠️ Tools & Technologies
 | Technology | Purpose |
-|---|---|
+|------------|---------|
 | Python 3.x | Core language |
 | Tkinter | All GUI windows |
-| SQLite3 | Database (built-in) |
+| SQLite3 | Local database (built-in) |
 | hashlib | Password hashing (SHA-256 + salt) |
-| Git + GitHub | Version control |
+| Git + GitHub | Version control & collaboration |
 
 ---
 
-## How to Run
+## ⚙️ Setup & Installation
 
 ### Requirements
 - Python 3.7 or higher
-- Tkinter (usually included with Python)
+- Tkinter (usually bundled with Python)
 
-### On Windows
+### Clone the Repository
+```bash
+git clone https://github.com/Hibaspec7/CyberDefenseLab.git
+cd CyberDefenseLab
+```
+
+### Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### Run the App
+
+**Windows:**
 ```bash
 python main.py
 ```
 
-### On Linux/macOS
+**Linux/macOS:**
 ```bash
-# If tkinter not found:
-sudo apt-get install python3-tk   # Ubuntu/Debian
-brew install python-tk            # macOS
-
+sudo apt-get install python3-tk
+brew install python-tk
 python3 main.py
 ```
 
 ---
 
-## Project Structure
+## 📁 Project Structure
+cyber_simulator/
 
-```
-cyber-attack-simulator/
 ├── main.py               ← App entry point (run this)
+
 ├── login_screen.py       ← Login + Register UI
+
 ├── home_screen.py        ← Difficulty selection
-├── attack_lab.py         ← Window 1: Attack Lab
-├── defense_screen.py     ← Window 2: Defense Terminal
-├── dashboard.py          ← Window 3: Dashboard
-├── game_controller.py    ← Round flow, answer validation
-├── score_manager.py      ← Scoring rules per difficulty
-├── database.py           ← SQLite setup + all queries
+
 ├── auth.py               ← Login/register logic + hashing
+
 ├── theme.py              ← Colors, fonts, style helpers
+
+├── attack_lab.py         ← Window 1: Attack Lab
+
+├── questions.py          ← Attack questions and answer data
+
+├── defense_screen.py     ← Window 2: Defense Terminal
+
+├── dashboard.py          ← Window 3: Dashboard
+
+├── achievements.py       ← Achievement tracking and rewards
+
+├── database.py           ← SQLite setup + all queries
+
+├── game_controller.py    ← Round flow, answer validation
+
+├── score_manager.py      ← Scoring rules per difficulty
+
 ├── requirements.txt
+
 ├── README.md
+
 └── cyber_simulator.db    ← Auto-created on first run
-```
 
 ---
 
-## Team Division
+## 🗄️ Database & Backend
 
-| Member | Window | Files |
-|---|---|---|
-| Leader | Home + Login | main.py, login_screen.py, home_screen.py |
-| Member 2 | Window 1 — Attack Lab | attack_lab.py |
-| Member 3 | Window 2 — Defense Terminal | defense_screen.py |
-| Member 4 | Window 3 — Dashboard | dashboard.py |
-| Backend Dev 1 | Database | database.py, auth.py |
-| Backend Dev 2 | Game Logic | game_controller.py, score_manager.py |
-
----
-
-## Database Schema
-
+### Schema
 ```sql
 users         (id, username, password_hash, total_score, level, sessions_played)
 attacks       (id, attack_type, description, correct_answer, hint, difficulty, log_lines)
@@ -121,27 +136,67 @@ game_sessions (id, user_id, attack_type, result, score, time_taken, difficulty)
 logs          (id, user_id, timestamp, attack_type, action_taken, outcome)
 ```
 
+### Game Flow
+1. User logs in → selects difficulty
+2. `game_controller.py` picks random attack
+3. `attack_lab.py` displays attack logs
+4. User responds in `defense_screen.py`
+5. `score_manager.py` calculates points
+6. Result saved to database
+7. `dashboard.py` renders stats + leaderboard
+
 ---
 
-## GitHub Workflow
+## 👥 Team Contributions
+| Member | Role | Files |
+|--------|------|-------|
+| **Hiba** | Leader — Core & Auth | `main.py`, `auth.py`, `theme.py`, `requirements.txt`, `README.md` |
+| **Owais** | Login + Database | `login_screen.py`, `database.py` |
+| **Huraira** | Home + Defense Terminal | `home_screen.py`, `defense_screen.py` |
+| **Laiba** | Attack Lab | `attack_lab.py`, `questions.py` |
+| **Ibrahim** | Dashboard + Achievements | `dashboard.py`, `achievements.py` |
+| **Sehar** | Game Logic + Scoring | `game_controller.py`, `score_manager.py` |
 
+---
+
+## 🔀 GitHub Workflow
 | Branch | Purpose |
-|---|---|
-| main | Final submission only |
-| dev | Merge all features here first |
-| feature/login | Login + Register screens |
-| feature/attack-lab | Window 1 |
-| feature/defense | Window 2 |
-| feature/dashboard | Window 3 |
-| feature/database | SQLite models |
-| feature/game-logic | Game controller + scoring |
-
-**Rules:**
-- Never commit directly to `main`
-- Pull from `dev` every day before working
-- Clear commit messages: `Added timer to attack lab window`
-- Create Pull Request → leader reviews → merge to `dev`
-- Add `cyber_simulator.db` and `__pycache__/` to `.gitignore`
+|--------|---------|
+| `main` | Final submission only |
+| `dev` | Merge all features here first |
+| `feature/login` | Login + Register screens |
+| `feature/attack-lab` | Window 1 |
+| `feature/defense` | Window 2 |
+| `feature/dashboard` | Window 3 |
+| `feature/database` | SQLite models |
+| `feature/game-logic` | Game controller + scoring |
 
 ---
+
+## 🔗 Major Pull Requests
+| PR | Description | Author |
+|----|-------------|--------|
+| [PR #__]() | Feature: Login Screen | Owais |
+| [PR #__]() | Feature: Attack Lab | Laiba |
+| [PR #__]() | Feature: Defense Terminal | Huraira |
+| [PR #__]() | Feature: Dashboard | Ibrahim |
+| [PR #__]() | Feature: Database Setup | Owais |
+| [PR #__]() | Feature: Game Logic | Sehar |
+
+---
+
+## 📸 Screenshots
+<img width="1358" height="706" alt="image" src="https://github.com/user-attachments/assets/d3e373fc-66bf-42e5-b7c4-78e4a90329db" />
+<img width="1365" height="717" alt="image" src="https://github.com/user-attachments/assets/9b725578-d19a-46ff-b2af-8cac81e9f10a" />
+<img width="1361" height="713" alt="image" src="https://github.com/user-attachments/assets/99a0b60a-100d-424c-9209-03d6c01a8152" />
+<img width="1361" height="715" alt="image" src="https://github.com/user-attachments/assets/35fc694f-f465-42c4-badd-86862f4ecb60" />
+<img width="1365" height="711" alt="image" src="https://github.com/user-attachments/assets/d56aa51d-7150-473f-aea0-ee8f847f0a06" />
+<img width="1365" height="706" alt="image" src="https://github.com/user-attachments/assets/97cf97f0-cc6e-4716-8c96-d739c81ef5a9" />
+<img width="1361" height="719" alt="image" src="https://github.com/user-attachments/assets/86383e42-c417-4587-b2d5-1cddb5be45b7" />
+<img width="1359" height="715" alt="image" src="https://github.com/user-attachments/assets/6cabcf06-f3bc-4940-81a0-8a9c83fb2935" />
+
+
+
+
+
 
