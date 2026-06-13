@@ -194,3 +194,49 @@ class DashboardWindow(tk.Frame):
                                fill=colors[t], font=("Courier New",9,"bold"))
             canvas.create_text(x+bw//2, 98, text=labels[t],
                                fill=T.MUTED, font=("Courier New",8))
+            
+            # ══════════════════════════════════════════════════════════════════════════
+    # LEADERBOARD TAB
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _build_leaderboard(self, parent):
+        T.section_header(parent,"  TOP 10 — ALL-TIME LEADERBOARD").pack(anchor="w",pady=(0,6))
+        f = tk.Frame(parent, bg=T.BG_PANEL,
+                     highlightthickness=1, highlightbackground=T.BORDER_PANEL)
+        f.pack(fill="both", expand=True)
+
+        hdr = tk.Frame(f, bg=T.BG_INPUT)
+        hdr.pack(fill="x")
+        for col,w in [("#",4),("USERNAME",18),("RANK",12),
+                      ("STREAK",8),("SESSIONS",8),("SCORE",8)]:
+            tk.Label(hdr, text=col, bg=T.BG_INPUT, fg=T.MUTED,
+                     font=("Courier New",9,"bold"), width=w,
+                     anchor="w").pack(side="left",padx=6,pady=5)
+        tk.Frame(f, bg=T.BORDER_PANEL, height=1).pack(fill="x")
+
+        rows   = db.get_leaderboard(10)
+        medals = {0:"(1)",1:"(2)",2:"(3)"}
+        mcolors= {0:T.AMBER,1:"#c0c0c0",2:"#cd7f32"}
+
+        for i, row in enumerate(rows):
+            is_me = row["username"] == self.user["username"]
+            bg    = "#0a1a0a" if is_me else T.BG_PANEL
+            r     = tk.Frame(f, bg=bg)
+            r.pack(fill="x")
+
+            tk.Label(r, text=medals.get(i,str(i+1)), bg=bg,
+                     fg=mcolors.get(i, T.MUTED),
+                     font=("Courier New",10), width=4, anchor="w").pack(side="left",padx=6,pady=4)
+            tk.Label(r, text=row["username"]+(" <YOU>" if is_me else ""),
+                     bg=bg, fg=T.GREEN if is_me else T.TEXT,
+                     font=("Courier New",10,"bold" if is_me else "normal"),
+                     width=18, anchor="w").pack(side="left",padx=6)
+            tk.Label(r, text=row.get("level","—"), bg=bg, fg=T.CYAN,
+                     font=("Courier New",10), width=12, anchor="w").pack(side="left",padx=6)
+            tk.Label(r, text=str(row.get("best_streak",0)), bg=bg, fg=T.AMBER,
+                     font=("Courier New",10), width=8, anchor="w").pack(side="left",padx=6)
+            tk.Label(r, text=str(row.get("sessions_played",0)), bg=bg, fg=T.MUTED,
+                     font=("Courier New",10), width=8, anchor="w").pack(side="left",padx=6)
+            tk.Label(r, text=str(row.get("total_score",0)), bg=bg, fg=T.GREEN,
+                     font=("Courier New",10,"bold"), width=8, anchor="w").pack(side="left",padx=6)
+            tk.Frame(f, bg=T.BORDER_PANEL, height=1).pack(fill="x")
