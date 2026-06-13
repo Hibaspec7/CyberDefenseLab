@@ -51,3 +51,20 @@ def apply_round(self, attack_type, correct, time_taken, hint_used, breach=False)
     })
 
     return pts
+    def use_hint(self):
+    if self.hints_remaining > 0 and self.difficulty != "expert":
+        self.hints_remaining -= 1
+        return True
+    return False
+    def get_win_rate(self):
+    if self.rounds_played == 0:
+        return 0
+    return round(self.rounds_passed / self.rounds_played * 100)
+
+
+def reset(self):
+    self.session_score = 0
+    self.hints_remaining = self.settings["hints_allowed"]
+    self.rounds_played = 0
+    self.rounds_passed = 0
+    self.round_log = []
