@@ -39,3 +39,10 @@ def __init__(self, user_id, difficulty="beginner"):
     self.current_index = 0
     self.score_mgr.reset()
     self.session_active = True
+    def session_complete(self):
+    return self.current_index >= len(self.attack_queue)
+
+def get_current_attack(self):
+    if self.session_complete():
+        return None
+    return self.attack_queue[self.current_index]
