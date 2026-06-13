@@ -299,3 +299,55 @@ class DashboardWindow(tk.Frame):
                          font=("Courier New",10,"bold" if w==12 and col!=T.MUTED else "normal"),
                          width=w, anchor="w").pack(side="left",padx=6,pady=3)
             tk.Frame(inner, bg=T.BORDER_PANEL, height=1).pack(fill="x")
+            
+            # ══════════════════════════════════════════════════════════════════════════
+    # ACHIEVEMENTS TAB
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _build_achievements(self, parent):
+        from achievements import ACHIEVEMENTS
+        unlocked = set(db.get_user_achievements(self.user["id"]))
+        done_cnt = len(unlocked)
+        total    = len(ACHIEVEMENTS)
+
+        # Progress
+        T.section_header(parent, f"  ACHIEVEMENTS  {done_cnt}/{total} UNLOCKED").pack(
+            anchor="w", pady=(0,4))
+        bar_bg = tk.Frame(parent, bg=T.BORDER_PANEL, height=8)
+        bar_bg.pack(fill="x", pady=(0,8))
+        pct = done_cnt/total if total else 0
+        tk.Frame(bar_bg, bg=T.PURPLE, height=8).place(relwidth=pct, height=8)
+
+        # Grid of badges
+        grid = tk.Frame(parent, bg=T.BG_DARK)
+        grid.pack(fill="both", expand=True)
+        col_count = 3
+        for idx, (key, data) in enumerate(ACHIEVEMENTS.items()):
+            done = key in unlocked
+            r,c  = divmod(idx, col_count)
+            card = tk.Frame(grid,
+                            bg=T.BG_PANEL if done else T.BG_INPUT,
+                            highlightthickness=1,
+                            highlightbackground=T.PURPLE if done else T.BORDER_PANEL)
+            card.grid(row=r, column=c, padx=5, pady=5, sticky="nsew", ipadx=8, ipady=6)
+            grid.columnconfigure(c, weight=1)
+
+            col = T.PURPLE if done else T.MUTED
+            tk.Label(card, text=data["icon"],
+                     bg=card.cget("bg"), fg=col,
+                     font=("Courier New",18)).pack()
+            tk.Label(card, text=data["title"],
+                     bg=card.cget("bg"), fg=col,
+                     font=("Courier New",10,"bold")).pack()
+            tk.Label(card, text=data["desc"],
+                     bg=card.cget("bg"), fg=T.MUTED if not done else col,
+                     font=("Courier New",8),
+                     wraplength=140, justify="center").pack(pady=(2,0))
+            if done:
+                tk.Label(card, text="UNLOCKED",
+                         bg=card.cget("bg"), fg=T.PURPLE,
+                         font=("Courier New",7,"bold")).pack()
+            else:
+                tk.Label(card, text="LOCKED",
+                         bg=card.cget("bg"), fg=T.BORDER_PANEL,
+                         font=("Courier New",7)).pack()
