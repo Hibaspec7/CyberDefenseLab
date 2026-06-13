@@ -186,3 +186,17 @@ logs          (id, user_id, timestamp, attack_type, action_taken, outcome)
 ---
 
 ## 📸 Screenshots
+<img width="1358" height="706" alt="image" src="https://github.com/user-attachments/assets/d3e373fc-66bf-42e5-b7c4-78e4a90329db" />
+<img width="1365" height="717" alt="image" src="https://github.com/user-attachments/assets/9b725578-d19a-46ff-b2af-8cac81e9f10a" />
+<img width="1361" height="713" alt="image" src="https://github.com/user-attachments/assets/99a0b60a-100d-424c-9209-03d6c01a8152" />
+<img width="1361" height="715" alt="image" src="https://github.com/user-attachments/assets/35fc694f-f465-42c4-badd-86862f4ecb60" />
+<img width="1365" height="711" alt="image" src="https://github.com/user-attachments/assets/d56aa51d-7150-473f-aea0-ee8f847f0a06" />
+<img width="1365" height="706" alt="image" src="https://github.com/user-attachments/assets/97cf97f0-cc6e-4716-8c96-d739c81ef5a9" />
+<img width="1361" height="719" alt="image" src="https://github.com/user-attachments/assets/86383e42-c417-4587-b2d5-1cddb5be45b7" />
+<img width="1359" height="715" alt="image" src="https://github.com/user-attachments/assets/6cabcf06-f3bc-4940-81a0-8a9c83fb2935" />
+
+
+
+
+
+
