@@ -52,7 +52,7 @@ class ScoreManager:
         return pts
 
     def apply_round(self, attack_type, correct, time_taken, hint_used, breach=False):
-        """Apply round result and update session score."""
+        """Apply round result and update session stats."""
         if breach:
             pts = 0
             result = "breach"
@@ -76,7 +76,7 @@ class ScoreManager:
         return pts
 
     def use_hint(self):
-        """Deduct hint if available."""
+        """Deduct hint cost. Returns True if hint is granted."""
         if self.hints_remaining > 0 and self.difficulty != "expert":
             self.hints_remaining -= 1
             return True
@@ -89,7 +89,7 @@ class ScoreManager:
         return round((self.rounds_passed / self.rounds_played) * 100)
 
     def reset(self):
-        """Reset session stats."""
+        """Reset session data."""
         self.session_score = 0
         self.hints_remaining = self.settings["hints_allowed"]
         self.rounds_played = 0
