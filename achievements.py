@@ -83,16 +83,9 @@ def check_achievements(user_id, session_summary, db_stats, user):
     if had_breach and final_sc >= 100:
         unlock("comeback")
 
-    # Streaks
-    streak = 0
-    max_streak = 0
-    for r in round_log:
-        if r.get("result") == "pass":
-            streak += 1
-            max_streak = max(max_streak, streak)
-        else:
-            streak = 0
-    if max_streak >= 3: unlock("streak_3")
-    if max_streak >= 5: unlock("streak_5")
+    # Streaks (check from global user stats since session size is limited to 4)
+    best_streak = user.get("best_streak", 0)
+    if best_streak >= 3: unlock("streak_3")
+    if best_streak >= 5: unlock("streak_5")
 
     return newly_unlocked
