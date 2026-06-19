@@ -87,6 +87,10 @@ class HomeScreen(tk.Frame):
                          cursor="hand2")
             f.pack(fill="x", pady=3, ipadx=10, ipady=6)
             f.bind("<Button-1>", lambda e,v=val: self._select_diff(v))
+
+            f.bind("<Enter>", lambda e, frame=f, col=col: frame.config(highlightbackground=col) if self.selected_diff.get() != val else None)
+            f.bind("<Leave>", lambda e, frame=f: frame.config(highlightbackground=T.BORDER_PANEL) if self.selected_diff.get() != val else None)
+
             tk.Label(f, text=label, bg=T.BG_PANEL, fg=col,
                      font=("Courier New",11,"bold")).pack(anchor="w", padx=8)
             tk.Label(f, text=desc, bg=T.BG_PANEL, fg=T.MUTED,
