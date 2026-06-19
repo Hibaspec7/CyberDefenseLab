@@ -192,6 +192,44 @@ def get_user_stats(user_id):
     worst    = max(weakness, key=weakness.get) if any(weakness.values()) else None
     return {"total":total,"wins":wins,"breaches":breaches,"win_rate":win_rate,
             "weakness":worst,"best_time":best_t, **type_wins}
+def get_difficulty_stats(user_id):
+    conn = get_connection()
+
+
+    stats = {}
+
+    for difficulty in ["easy", "medium", "hard"]:
+
+        total = conn.execute(
+            """
+            SELECT COUNT(*) as c
+            FROM game_sessions
+            WHERE user_id=? AND LOWER(difficulty)=?
+            """,
+            (user_id, difficulty)
+        ).fetchone()["c"]
+
+        wins = conn.execute(
+            """
+            SELECT COUNT(*) as c
+            FROM game_sessions
+            WHERE user_id=?
+            AND LOWER(difficulty)=?
+            AND result='pass'
+            """,
+            (user_id, difficulty)
+        ).fetchone()["c"]
+
+        rate = round((wins / total) * 100) if total else 0
+
+        stats[difficulty] = {
+            "total": total,
+            "wins": wins,
+            "rate": rate
+        }
+
+    conn.close()
+    return stats
 
 
 def get_leaderboard(limit=10):
