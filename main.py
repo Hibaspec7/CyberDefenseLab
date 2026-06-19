@@ -4,6 +4,7 @@ Cyber-Attack Simulator & Defense Lab
 """
 import tkinter as tk
 from tkinter import messagebox
+import datetime
 import database as db
 import theme as T
 
@@ -73,9 +74,20 @@ class CyberSimApp:
             self._check_achievements()
             # If daily, save daily result
             if gc.is_daily:
+                # NOTE: previously this awarded +50 bonus points on every
+                # completed daily session with no check, letting a user
+                # replay Daily Challenge repeatedly the same day and farm
+                # unlimited bonus points (leaderboard exploit). Now we only
+                # award the bonus the first time today's challenge is
+                # completed.
+                today = datetime.date.today().isoformat()
+                existing = db.get_daily_challenge(self.current_user["id"], today)
+                already_rewarded = bool(existing and existing.get("completed"))
+
                 gc.save_daily_result()
-                # Bonus points for completing daily
-                db.update_user_score(self.current_user["id"], 50)
+
+                if not already_rewarded:
+                    db.update_user_score(self.current_user["id"], 50)
             db.increment_session_count(self.current_user["id"])
             self._show_dashboard()
             return
