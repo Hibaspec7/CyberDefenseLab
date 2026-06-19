@@ -313,22 +313,36 @@ class DefenseScreen(tk.Frame):
                  font=("Courier New",9)).pack(pady=(3,0))
 
     def _ddos_decide(self, ip, action, var, row):
-        if var.get(): return
-        var.set(action)
-        self._ddos_decisions[ip] = action
-        row.config(bg="#0a1a0a" if action=="allow" else "#1a0a0a")
+        # If the exact same option is clicked again, deselect/clear it back to neutral
+        if var.get() == action:
+            var.set("")
+            if ip in self._ddos_decisions:
+                del self._ddos_decisions[ip]
+            row.config(bg="#060a12") # Reverts to default terminal row background
+        else:
+            # Otherwise, set or switch the active decision smoothly
+            var.set(action)
+            self._ddos_decisions[ip] = action
+            row.config(bg="#0a1a0a" if action=="allow" else "#1a0a0a")
+
+        # Dynamically cascade background colors to all internal sub-widgets
         for ch in row.winfo_children():
-            if isinstance(ch, tk.Frame): # Access the button subgroup container
-                for btn in ch.winfo_children():
-                    if btn.cget("text") == action.upper():
-                        btn.config(text=f"[{action.upper()}]", state="disabled", relief="sunken")
-                    else:
-                        btn.config(state="disabled", fg=T.MUTED, highlightbackground=T.BORDER_PANEL)
+            try: ch.config(bg=row.cget("bg"))
+            except: pass
+            if isinstance(ch, tk.Frame):
+                for sub_ch in ch.winfo_children():
+                    try: sub_ch.config(bg=row.cget("bg"))
+                    except: pass
+
         done  = len(self._ddos_decisions)
         total = len(self._ddos_entry_vars)
         self.ddos_count_var.set(f"{done} / {total} classified")
+        
+        # Enable the final submit button only when every single traffic flow is currently classified
         if done == total:
             self.ddos_submit_btn.config(state="normal", fg=T.CYAN)
+        else:
+            self.ddos_submit_btn.config(state="disabled", fg=T.MUTED)
 
     def _submit_ddos(self):
         if self._answered: return
