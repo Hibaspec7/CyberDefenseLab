@@ -9,6 +9,27 @@ import os
 import database as db
 
 
+def check_password_strength(password: str) -> dict:
+    """
+    Checks password strength based on length and character variety.
+    Returns {'valid': bool, 'message': str}.
+    """
+    if len(password) < 6:
+        return {"valid": False, "message": "Password must be at least 6 characters."}
+
+    has_upper = any(c.isupper() for c in password)
+    has_lower = any(c.islower() for c in password)
+    has_digit = any(c.isdigit() for c in password)
+
+    if not (has_upper and has_lower and has_digit):
+        return {
+            "valid": False,
+            "message": "Password should contain at least one uppercase letter, one lowercase letter, and one number for better security."
+        }
+
+    return {"valid": True, "message": "Password strength is good."}
+
+
 def _hash_password(password: str) -> str:
     """Hash a password with a random salt. Returns 'salt:hash'."""
     salt = os.urandom(16).hex()
@@ -31,8 +52,11 @@ def register_user(username: str, password: str) -> dict:
     """
     if not username or len(username) < 3:
         return {"success": False, "message": "Username must be at least 3 characters.", "user": None}
-    if not password or len(password) < 6:
-        return {"success": False, "message": "Password must be at least 6 characters.", "user": None}
+
+    strength_check = check_password_strength(password)
+    if not strength_check["valid"]:
+        return {"success": False, "message": strength_check["message"], "user": None}
+
     if not username.replace("_", "").isalnum():
         return {"success": False, "message": "Username can only contain letters, numbers, underscores.", "user": None}
 
@@ -55,5 +79,3 @@ def login_user(username: str, password: str) -> dict:
     if not _verify_password(password, user["password_hash"]):
         return {"success": False, "message": "Incorrect password.", "user": None}
     return {"success": True, "message": "Login successful.", "user": user}
-
-        
