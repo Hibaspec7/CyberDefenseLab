@@ -41,6 +41,13 @@ class LoginScreen(tk.Frame):
             font=("Courier New", 9)
         ).pack(pady=(0, 24))
 
+        tk.Button(self, text="[CLOSE]", 
+          command=self.master.destroy, 
+          bg=T.BG_DARK, fg=T.AMBER,
+          activebackground=T.BG_HOVER, activeforeground=T.AMBER,
+          relief="flat", bd=0, cursor="hand2",
+          font=("Courier New", 9, "bold"), highlightthickness=0).pack(pady=(0, 10))
+
         # ── Card frame ──────────────────────────────────────────────────────
         card = tk.Frame(self, bg=T.BG_PANEL,
                         highlightthickness=1, highlightbackground=T.BORDER_GREEN)
