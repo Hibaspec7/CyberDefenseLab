@@ -318,8 +318,12 @@ class DefenseScreen(tk.Frame):
         self._ddos_decisions[ip] = action
         row.config(bg="#0a1a0a" if action=="allow" else "#1a0a0a")
         for ch in row.winfo_children():
-            try: ch.config(bg=row.cget("bg"))
-            except: pass
+            if isinstance(ch, tk.Frame): # Access the button subgroup container
+                for btn in ch.winfo_children():
+                    if btn.cget("text") == action.upper():
+                        btn.config(text=f"[{action.upper()}]", state="disabled", relief="sunken")
+                    else:
+                        btn.config(state="disabled", fg=T.MUTED, highlightbackground=T.BORDER_PANEL)
         done  = len(self._ddos_decisions)
         total = len(self._ddos_entry_vars)
         self.ddos_count_var.set(f"{done} / {total} classified")
