@@ -41,7 +41,7 @@ class LoginScreen(tk.Frame):
             font=("Courier New", 9)
         ).pack(pady=(0, 24))
 
-        tk.Button(self, text="[CLOSE]", 
+        tk.Button(self, text="close", 
           command=self.master.destroy, 
           bg=T.BG_DARK, fg=T.AMBER,
           activebackground=T.BG_HOVER, activeforeground=T.AMBER,
