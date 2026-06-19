@@ -157,7 +157,10 @@ class DashboardWindow(tk.Frame):
                      font=("Courier New",9),
                      wraplength=600, justify="left").pack(padx=12, pady=8)
 
+
+
         # ── Daily challenge status ─────────────────────────────────────────────
+
         today = datetime.date.today().isoformat()
         dc    = db.get_daily_challenge(self.user["id"], today)
         dcf   = tk.Frame(parent, bg=T.BG_PANEL,
@@ -254,7 +257,8 @@ class DashboardWindow(tk.Frame):
         hdr = tk.Frame(outer, bg=T.BG_INPUT)
         hdr.pack(fill="x")
         for col,w in [("#",4),("ATTACK",14),("DIFF",12),
-                      ("RESULT",12),("SCORE",8),("TIME",7)]:
+              ("RESULT",12),("SCORE",8),
+              ("TIME",7),("DATE",12)]:
             tk.Label(hdr, text=col, bg=T.BG_INPUT, fg=T.MUTED,
                      font=("Courier New",9,"bold"), width=w,
                      anchor="w").pack(side="left",padx=6,pady=5)
@@ -294,7 +298,8 @@ class DashboardWindow(tk.Frame):
                 (res_symbols.get(result,result),          12, res_colors.get(result,T.TEXT)),
                 ((f"+{pts}" if pts>0 else str(pts)),      8,  T.GREEN if pts>0 else T.RED),
                 (f"{sess.get('time_taken',0):.1f}s",      7,  T.MUTED),
-            ]:
+                (sess.get("played_at","")[:10],          12,  T.MUTED),
+        ]:
                 tk.Label(r, text=val, bg=T.BG_PANEL, fg=col,
                          font=("Courier New",10,"bold" if w==12 and col!=T.MUTED else "normal"),
                          width=w, anchor="w").pack(side="left",padx=6,pady=3)

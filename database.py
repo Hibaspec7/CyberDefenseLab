@@ -194,6 +194,7 @@ def get_user_stats(user_id):
             "weakness":worst,"best_time":best_t, **type_wins}
 
 
+
 def get_leaderboard(limit=10):
     conn = get_connection()
     rows = conn.execute("""SELECT username,total_score,level,sessions_played,best_streak
