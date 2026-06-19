@@ -83,19 +83,29 @@ class HomeScreen(tk.Frame):
         ]
         for val, label, col, desc in diffs:
             f = tk.Frame(left, bg=T.BG_PANEL,
-                         highlightthickness=1, highlightbackground=T.BORDER_PANEL,
+                         highlightthickness=2, highlightbackground=T.BORDER_PANEL,
                          cursor="hand2")
             f.pack(fill="x", pady=3, ipadx=10, ipady=6)
-            f.bind("<Button-1>", lambda e,v=val: self._select_diff(v))
-
-            f.bind("<Enter>", lambda e, frame=f, col=col: frame.config(highlightbackground=col) if self.selected_diff.get() != val else None)
-            f.bind("<Leave>", lambda e, frame=f: frame.config(highlightbackground=T.BORDER_PANEL) if self.selected_diff.get() != val else None)
-
-            tk.Label(f, text=label, bg=T.BG_PANEL, fg=col,
-                     font=("Courier New",11,"bold")).pack(anchor="w", padx=8)
-            tk.Label(f, text=desc, bg=T.BG_PANEL, fg=T.MUTED,
-                     font=("Courier New",8), justify="left").pack(anchor="w", padx=8)
+            
+            # Lock loop variables into default parameters to prevent late-binding mixups
+            f.bind("<Button-1>", lambda e, v=val: self._select_diff(v))
+            f.bind("<Enter>", lambda e, frame=f, c=col, v=val: frame.config(highlightbackground=c) if self.selected_diff.get() != v else None)
+            f.bind("<Leave>", lambda e, frame=f, v=val: frame.config(highlightbackground=T.BORDER_PANEL) if self.selected_diff.get() != v else None)
+            
+            lbl1 = tk.Label(f, text=label, bg=T.BG_PANEL, fg=col,
+                            font=("Courier New",11,"bold"))
+            lbl1.pack(anchor="w", padx=8)
+            
+            lbl2 = tk.Label(f, text=desc, bg=T.BG_PANEL, fg=T.MUTED,
+                            font=("Courier New",8), justify="left")
+            lbl2.pack(anchor="w", padx=8)
+            
+            # Make sure clicking the text labels also triggers the correct selection
+            lbl1.bind("<Button-1>", lambda e, v=val: self._select_diff(v))
+            lbl2.bind("<Button-1>", lambda e, v=val: self._select_diff(v))
+            
             self.diff_frames[val] = f
+            
         self._select_diff("beginner")
 
         # ── LEFT: Attack type overview ────────────────────────────────────────
@@ -246,9 +256,13 @@ class HomeScreen(tk.Frame):
 
     def _select_diff(self, val):
         self.selected_diff.set(val)
-        colors = {"beginner":T.GREEN,"intermediate":T.AMBER,"expert":T.RED}
+        colors = {"beginner": T.GREEN, "intermediate": T.AMBER, "expert": T.RED}
+        
         for v, f in self.diff_frames.items():
-            f.config(highlightbackground=colors[v] if v==val else T.BORDER_PANEL)
+            if v == val:
+                f.config(highlightbackground=colors[v])
+            else:
+                f.config(highlightbackground=T.BORDER_PANEL)
 
     def _launch(self):
         self.on_start_game(self.selected_diff.get())
