@@ -176,12 +176,12 @@ logs          (id, user_id, timestamp, attack_type, action_taken, outcome)
 ## 🔗 Major Pull Requests
 | PR | Description | Author |
 |----|-------------|--------|
-| [PR #__]() | Feature: Login Screen | Owais |
-| [PR #__]() | Feature: Attack Lab | Laiba |
-| [PR #__]() | Feature: Defense Terminal | Huraira |
-| [PR #__]() | Feature: Dashboard | Ibrahim |
-| [PR #__]() | Feature: Database Setup | Owais |
-| [PR #__]() | Feature: Game Logic | Sehar |
+| [PR #1](https://github.com/Hibaspec7/CyberDefenseLab/pulls) | Feature: Login Screen | Owais |
+| [PR #1](https://github.com/Hibaspec7/CyberDefenseLab/pulls) | Feature: Attack Lab | Laiba |
+| [PR #1](https://github.com/Hibaspec7/CyberDefenseLab/pulls) | Feature: Defense Terminal | Huraira |
+| [PR #1](https://github.com/Hibaspec7/CyberDefenseLab/pulls) | Feature: Dashboard | Ibrahim |
+| [PR #1](https://github.com/Hibaspec7/CyberDefenseLab/pulls) | Feature: Database Setup | Owais |
+| [PR #1](https://github.com/Hibaspec7/CyberDefenseLab/pulls) | Feature: Game Logic | Sehar |
 
 ---
 
