@@ -1,12 +1,11 @@
 # requirements.txt
-# All core dependencies are Python built-ins — no pip install needed!
-# Optional: install these for enhanced features
+# CyberDefenseLab - Dependency Reference
 
-# Built-in (no install):
-#   tkinter   - GUI
+# Built-in (no pip install needed):
+#   tkinter   - GUI framework
 #   sqlite3   - Database
 #   hashlib   - Password hashing
-#   os, random, time - Standard library
+#   os, random, time, datetime - Standard library
 
 # Optional enhancements:
-# pillow     - For adding images/icons (pip install pillow)
+pillow>=10.0.0     # For adding images/icons (pip install pillow)
